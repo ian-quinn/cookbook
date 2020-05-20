@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Offset-Calculator</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcdn.net/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css">
+
+    <script src="https://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+
+    <style type="text/css">
+        form label {
+            font-size: 0.9em;
+            padding-left: 1em;
+            display: inline-block;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="row justify-content-between" style="margin:50px;">
+    <div class="col-md-6">
+        <form id="infoForm">
+            <!-- <span style="background-color: #fff; font-size: 0.8em; color: #ccc;">GEOGRAPHIC PARAMS</span> -->
+            
+            <div class="form-row form-group">
+                <div class="col-lg-6">
+                    <select class="custom-select custom-select-sm col-6" name="inp_city" required>
+                        <option>Harbin</option>
+                        <option>Beijing</option>
+                        <option>Shanghai</option>
+                        <option>Guangzhou</option>
+                        <option>Lhasa</option>
+                        <option>Urumqi</option>
+                        <option>Lanzhou</option>
+                        <option>Kunming</option>
+                    </select>
+                    <label>City</label>
+                </div>
+                <div class="col-lg-6 form-inline">
+                    <input type="text" class="form-control form-control-sm col-6" name="inp_date" value="2020-12-21" required>
+                    <label>Date</label>
+                </div>
+            </div>
+
+            <div class="form-row form-group">
+                <div class="col-lg-6 form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_axis" value="180" required>
+                    <label>Normal Axis</label>
+                </div>
+                <div class="col-lg-6 form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_clo" value="0.2" required>
+                    <label>Cloudiness</label>
+                </div>
+            </div>
+
+            <div class="form-row form-group">
+                <div class="col-lg-6 form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_temp1" value="-10" required>
+                    <label>Max Temperature</label>
+                </div>
+                <div class="col-lg-6 form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_temp2" value="-22" required>
+                    <label>Min Temperature</label>
+                </div>
+            </div>
+
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="radtoggle">
+                <label class="custom-control-label" for="radtoggle">Grab solar radiation infomation from epw files</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="temptoggle">
+                <label class="custom-control-label" for="temptoggle">Grab temperature series from epw files</label>
+            </div>
+
+            <hr>
+
+            <div class="form-row">
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_uwin" value="2.5" required>
+                    <label>U_window (W/m<sup>2</sup>K)</label>
+                </div>
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_peo" value="15" required>
+                    <label>q_people (W/m<sup>2</sup>)</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_uwall" value="1" required>
+                    <label>U_wall (W/m<sup>2</sup>K)</label>
+                </div>
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_lgt" value="7" required>
+                    <label>q_light (W/m<sup>2</sup>)</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_spt" value="18" required>
+                    <label>Setpoint (℃)</label>
+                </div>
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_eqp" value="20" required>
+                    <label>q_equip (W/m<sup>2</sup>)</label>
+                </div>
+            </div>
+
+            <div class="form-group form-inline">
+                <input type="text" class="form-control form-control-sm col-3" name="inp_shgc" value="0.7" required>
+                <label>Solar Heat Gain Coefficient (frac)</label>
+            </div>
+            <div class="form-group form-inline">
+                <select class="custom-select custom-select-sm col-3" name="inp_ctsf" id="ctsfselector" required>
+                    <option>Blink</option>
+                    <option>Curtain</option>
+                    <option>Stud</option>
+                    <option>EIFS</option>
+                    <option>Brick</option>
+                    <option>BrickMass</option>
+                    <option>Customize!</option>
+                </select>
+                <label>Conduction Time Series Factors (frac)</label>
+            </div>
+
+            <div id="materialpopout" style="display: none;">
+                <div class="form-row">
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_cond" value="1.95" required>
+                    <label>Conductivity (W/mK)</label>
+                </div>
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_den" value="2242.5" required>
+                    <label>Density (kg/m<sup>3</sup>)</label>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_cp" value="900" required>
+                    <label>Capacity (J/kgK)</label>
+                </div>
+                <div class="col-lg-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_thickness" value="0.304" required>
+                    <label>Thickness (m<sup>2</sup>K/W)</label>
+                </div>
+            </div>
+
+            </div>
+            <div class="form-group form-inline">
+                <select class="custom-select custom-select-sm col-3" name="inp_rtf" required>
+                    <option>Blink</option>
+                    <option>Light</option>
+                    <option>Medium</option>
+                    <option>Heavy</option>
+                </select>
+                <label>Radiant Time Factors (frac)</label>
+            </div>
+
+            <hr>
+
+            <div class="form-row">
+                <div class="col-md-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_h" value="4" required>
+                    <label>Height (m)</label>
+                </div>
+                <div class="col-md-6 form-group form-inline">
+                    <input type="text" class="form-control form-control-sm col-4" name="inp_sill" value="1" required>
+                    <label>Sill Height (m)</label>
+                </div>
+            </div>
+
+            <div class="form-group form-inline">
+                <input type="text" class="form-control form-control-sm col-3" name="inp_wwr" value="0.3" required>
+                <label>Window to Wall Ratio (frac)</label>
+            </div>
+
+        </form>
+
+        <button type="submit" class="btn btn-outline-danger btn-sm btn-block release" style="margin-top: 20px;">Calculate</button>
+
+
+    </div>
+
+    <div class="col-md-6">
+        <div id="bar" style="width: 100%; height:350px;"></div>
+        <div class="form-group" style="padding-left: 50px; padding-right: 50px;">
+            <label for="recorder">Example textarea</label>
+            <textarea class="form-control" id="recorder" rows="8"></textarea>
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+        $(function() {
+
+            $("#ctsfselector").change(function() {
+                if ($(this).val() == 'Customize!') {
+                    $("#materialpopout").slideDown(200);
+                }
+                else{
+                    $("#materialpopout").slideUp(200);
+                }
+            });
+
+            $("#radtoggle").change(function() {
+                if (!$(this).attr("checked")) {
+                    $(this).attr("checked", true);
+                    $("input[name='inp_clo']").attr("disabled", true);
+                }
+                else{
+                    $(this).removeAttr("checked");
+                    $("input[name='inp_clo']").removeAttr("disabled");
+                }
+            });
+
+            $("#temptoggle").change(function() {
+                if (!$(this).attr("checked")) {
+                    $(this).attr("checked", true);
+                    $("input[name='inp_temp1']").attr("disabled", true);
+                    $("input[name='inp_temp2']").attr("disabled", true);
+                }
+                else{
+                    $(this).removeAttr("checked");
+                    $("input[name='inp_temp1']").removeAttr("disabled");
+                    $("input[name='inp_temp2']").removeAttr("disabled");
+                }
+            });
+
+            $(".release").click(function() {  
+                var formObject = {};
+                var formArray = $("#infoForm").serializeArray();
+                // alert(JSON.stringify(formArray));
+                $.each(formArray, function() {
+                    formObject[this.name] = this.value;
+                });
+                // console.log(JSON.stringify(formObject))
+                var chart = echarts.init(document.getElementById('bar'), 'white', {renderer: 'canvas'});
+                var rec = $("#recorder")
+                
+                $.ajax({ 
+                    type: 'post',  
+                    url: "{{ url_for('test') }}",
+                    data: JSON.stringify(formObject),
+                    contentType: 'application/json;charset=UTF-8',
+                    dataType: 'json', 
+                    success: function(result){
+                        chart.setOption(result);
+                        rec.val(rec.val() + result);
+                        // console.log('data submitted' + JSON.stringify(formObject));
+                        console.log(result);
+                    },
+                    error:function(){ 
+                        alert("Sorry, we cannot handle this calculation. Check the inputs.")
+                    }
+                });
+                
+            });
+
+            $('#infoForm').bootstrapValidator({
+                // excluded: [':disabled', ':hidden', ':not(:visible)'],
+                live: 'enabled',
+                message: 'This value is not valid',
+                //提供输入验证图标提示
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    inp_axis: {
+                        validators: {
+                            between: {
+                                min: 0,
+                                max: 360,
+                                message: 'Facing normal lies within 0-360',
+                            }
+                        }
+                    },
+
+                    inp_date: {
+                        validators: {
+                            date: {
+                                format: "YYYY-MM-DD",
+                                message: 'Please follow the format YYYY-MM-DD'
+                            }
+                        }
+                    },
+
+                    inp_shgc: {
+                        validators: {
+                            between: {
+                                min: 0,
+                                max: 1,
+                                message: 'This is one fractional value within 0-1',
+                            }
+                        }
+                    },
+
+                    inp_clo: {
+                        validators: {
+                            between: {
+                                min: 0,
+                                max: 1,
+                                message: 'This should be fractional',
+                            }
+                        }
+                    },
+
+                    inp_wwr: {
+                        validators: {
+                            between: {
+                                min: 0,
+                                max: 1,
+                                message: 'This should be fractional',
+                            }
+                        }
+                    }
+                }
+            })
+            .on('error.field.bv', function(e, data) {
+                $("button[type=submit]").attr('disabled', true);
+            })
+            .on('success.field.bv', function(e, data) {
+                $("button[type=submit]").removeAttr('disabled');
+            });
+        })
+
+    </script>
+</body>
+</html>
